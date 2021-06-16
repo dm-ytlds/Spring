@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--告诉spring创建对象
+            id：对象的自定义名称，唯一值。spring通过这个名称找到对象。
+            class：类的全限定名称。不能是接口，因为spring是反射机制创建对象，必须使用类。
+            spring是把创建好的对象放进map集合中，（map集合是spring自带的）
+            springMap.put(id, 对象);
+    -->
+
+    <!--spring的对象默认创建时间是：在创建spring的容器时，会创建配置文件中所有的对象。-->
+    <bean id="someService" class="demi.demos.service.impl.someServiceImpl"/>
+</beans>
+
+<!--
+    spring的配置文件：
+        1.beans：是根标签，spring把java对象称为bean;
+        2.spring-beans.xsd是约束文件，和mybatis指定btd是一样的。
+-->

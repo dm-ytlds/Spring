@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+    <!--引用数据类型之自动注入-->
+    <bean id="stu_auto" class="demi.demos.pack04.Student" autowire="byName">
+        <property name="name" value="zs" />
+        <property name="age" value="24" />
+<!--        <property name="school" ref="School" />-->
+    </bean>
+
+
+    <!--引用数据类型对象-->
+    <bean id="school" class="demi.demos.pack04.School">
+        <property name="sname" value="xihua university"/>
+        <property name="addr" value="Chengdu, Sichuan" />
+    </bean>
+</beans>
