@@ -262,13 +262,25 @@ AOP底层，就是采用动态代理模式实现的。采用两种代理：JDK�
 
 ​	（3）合理的安排切面执行的位置，在哪个类的哪个方法增加功能。
 
+
+
+AOP使用的时机：
+
+​	（1）在多个类中，加入同一个功能；
+
+​	（2）当要给项目存在的类修改功能，但是原有类的功能不完善，但是还没有源代码，使用aop就可以增加功能；
+
+​	（3）给业务方法增加事务，或日志等的输出。 
+
+
+
 术语：
 
 ​	（1）Aspect：切面，表示增强的功能，非业务功能，常见的切面功能有：日志，事务，统计信息，参数检查，权限验证等等。
 
 ​	（2）JoinPoint：连接点，连接业务方法和切面的位置。
 
-​	（3）Pointcut：切入点，值多个连接点方法的集合。
+​	（3）Pointcut：切入点，指多个连接点方法的集合。
 
 ​	（4）目标对象：需要增加功能方法对应的那个类就是目标对象。
 
@@ -288,7 +300,7 @@ AOP的实现
 
 ​	aspectJ：专门做aop框架。spring框架中集成了aspectJ框架，通过spring就能使用aspectJ的功能。
 
-​	aspectJ框架shixiangaop有两种方式：
+​	aspectJ框架实现aop有两种方式：
 
 ​		(1) 使用xml框架的配置文件：配置全局事务；
 
@@ -303,3 +315,131 @@ AOP的实现
 ​		(1) @Before; (2) @AfterReturning; (3) @Around; (4) @AfterThrowing; (5) @After .
 
 ​	（2）表示切面执行的位置。
+
+
+
+使用aspectj实现AOP的基本步骤：
+
+​	1.新建maven项目；
+
+​	2.加入依赖：
+
+​		spring依赖；
+
+​		aspectj依赖；
+
+​		junit单元测试。
+
+​	3.创建目标类：接口和它的实现类。
+
+​	4.创建切面类：
+
+​		在类的上面加入@Aspect；
+
+​		在类中定义方法，方法就是切面要执行的功能代码。在方法的上面加入aspectj中的通知注解，例如：@Before，还需要指定切入点表达式execution()；
+
+​	5.创建spring的配置文件：声明对象，把对象交给容器统一管理。
+
+​		使用注解或者bean标签的形式声明对象。
+
+​	6.创建测试类，从spring容器中获取目标对象（即代理对象）。通过代理执行方法，实现aop的功能增强。
+
+```java
+JoinPoint的使用：指定通知方法中的参数
+JoinPoint：业务方法，要加入切面功能的业务方法
+作用：
+	可以在通知方法中获取方法执行时的信息，例如方法名称，方法的实参。
+	如果切面功能中需要用到方法的信息，就加入JoinPoint；
+	JoinPoint参数的值是由框架赋予，必须是第一个位置的参数。
+public void myBefore(JoinPoint jp) {
+	// 获取方法的完整定义
+    System.out.println("方法的定义：" + jp.getSignature());
+    System.out.println("方法的名称：" + jp.getSignature().getName());
+    // 获取方法的实参
+    Object args[] = jp.getArgs();
+    for(Object arg : args) {
+        System.out.println(arg);
+    }
+    System.out.println("执行切面方法myBefore()");
+}
+```
+
+```
+后置通知：@AfterReturning
+属性：
+	1.value 切入点表达式
+	2.returning 自定义的变量，表示目标方法的返回值；
+位置：
+	在方法定义的上面
+特点：
+	1.在目标方法之后执行；
+	2.能够获取到目标方法的返回值，可以根据这个返回值做不同的处理功能；
+	3.可以修改这个返回值，
+```
+
+```
+环绕通知：@Around
+环绕通知方法的定义格式：
+	1.public
+	2.必须有一个返回值，推荐使用object
+	3.方法名称自定义
+	4.方法有参数，固定的参数proceedingJoinPoint
+属性：
+	value：切入点表达式
+位置：
+	在方法体中定义
+特点：
+	1.功能最强的通知；
+	2.在目标方法的前和后都能增强功能；
+	3.控制目标方法是否被调用执行；
+	4.修改原来的目标方法的执行结果，最后调用。
+	
+环绕通知，等同于jdk动态代理的InvocationHandler接口
+	参数：ProceedingJoinPoint 等同于 Method
+		作用：执行目标方法
+	返回值：返回目标的执行结果，可以被修改。
+
+```
+
+```
+Pointcut：定义和管理切入点，如果项目中有多个切入点表达式是重复的，即可以复用，则可以使用@Pointcut。
+属性：
+	value：切入点表达式
+位置：
+	在自定义的方法上面
+特点：
+	当使用@Pointcut定义在一个方法的上面，此时这个方法的名称就是切入点表达式的别名，其它的通知中，value属性就可以使用这个方法名称，代替切入点表达式。
+```
+
+### 合并mybatis和Spring框架
+
+用的技术是：ioc。（原因：ioc能够创建对象。可以把mybatis框架中的对象交给spring统一创建。）
+
+使用mybatis必然会用到dao代理。要使用dao代理对象，就需要使用getMapper()方法。
+
+使用getMapper()方法需要的条件：
+
+​	1.获取SqlSession对象，需要使用SqlSessionFactory的openSession()方法。
+
+​	2.创建SqlSessionFactory对象，通过读取mybatis的主配置文件，能创建SqlSessionFactory对象。
+
+使用独立的连接池替换mybatis默认自带的，把连接池也交给spring创建。
+
+主配置文件：
+
+```xml
+1.数据库信息
+
+```
+
+实现步骤：
+
+​	
+
+
+
+spring的事务处理
+
+​	什么是事务？
+
+​		事务是指一组sql语句的集合。 
