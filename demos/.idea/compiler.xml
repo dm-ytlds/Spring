@@ -13,6 +13,7 @@
     <bytecodeTargetLevel>
       <module name="demo01" target="11.0" />
       <module name="demo02-DI-xml" target="11.0" />
+      <module name="demo03-DI-anno" target="11.0" />
     </bytecodeTargetLevel>
   </component>
 </project>
